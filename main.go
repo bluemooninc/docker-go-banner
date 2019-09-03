@@ -4,144 +4,55 @@ with echo, gorm modules with mysql database sample
 by Yoshi Sakai
  */
 package main
-
 import (
+    "html/template"
+    "github.com/castaneai/gomodtest/banner"
+    "io"
     "net/http"
     "github.com/labstack/echo"
-    "github.com/jinzhu/gorm"
-    _ "github.com/jinzhu/gorm/dialects/mysql"
-    "strconv"
 )
-/*
-** Config for Database table
- */
-type Product struct {
-    gorm.Model
-    Code string
-    Price uint
-}
-/*
-** Config for Json data
- */
-type Item struct {
-    Code string `json:"code"`
-    Price uint `json:"price"`
-}
-/*
-** Config for MySQL setting
- */
-func gormConnect() *gorm.DB {
-    DBMS     := "mysql"
-    USER     := "docker"
-    PASS     := "docker"
-    PROTOCOL := "tcp(mysql_host:3306)"
-    DBNAME   := "test_database"
-    // add parseTime option
-    CONNECT := USER+":"+PASS+"@"+PROTOCOL+"/"+DBNAME+"?parseTime=true"
-    db,err := gorm.Open(DBMS, CONNECT)
 
-    if err != nil {
-        panic(err.Error())
+type Template struct {
+    templates *template.Template
+}
+
+func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+    return t.templates.ExecuteTemplate(w, name, data)
+}
+func getHandler(c echo.Context) error {
+    b := banner.GetActiveBanner(c)
+    const dateLayout = "2006-01-02 15:04"
+    var data = struct {
+        PromotionCode string
+        ContentUrl    string
+        StartedAt     string
+        ExpiredAt     string
+        RemoteAddr    string
+    }{
+        PromotionCode: b.PromotionCode,
+        ContentUrl:    b.ContentUrl,
+        StartedAt:     b.StartedAt.Format(dateLayout),
+        ExpiredAt:     b.ExpiredAt.Format(dateLayout),
+        RemoteAddr:    c.RealIP(),
     }
-    return db
+    return c.Render(http.StatusOK, "index", data)
 }
-/*
-** Common return of Json
- */
-func returnJson(c echo.Context, code string) error {
-    return c.JSON(
-        http.StatusOK,
-        struct {
-            Code int    `json:"code"`
-            Text string `json:"body"`
-        }{
-            Code: http.StatusOK,
-            Text: code,
-        },
-    )
-}
-/*
-** HELLO WORLD!
- */
-func helloWorld(c echo.Context) error {
-    u := new(Item)
-    if err := c.Bind(u); err != nil {
-        return err
-    }
-    return c.JSON(http.StatusCreated,u)
-}
-/*
-** Insert record by Json data
- */
-func insert(c echo.Context) error {
-    db := gormConnect()
-    db.AutoMigrate(&Product{})
-    u := new(Item)
-    if err := c.Bind(u); err != nil {
-        return err
-    }
-    db.Create(&Product{Code: u.Code, Price: u.Price})
-    defer db.Close()
-    return returnJson(c, u.Code)
-}
-/*
-** Find record by Json data
- */
-func find(c echo.Context) error {
-    db := gormConnect()
-    u := new(Item)
-    if err := c.Bind(u); err != nil {
-        return err
-    }
-    var product Product
-    db.First(&product, "code = ?", u.Code)
-    defer db.Close()
-    return returnJson(c, strconv.FormatUint(uint64(product.Price),10))
-}
-/*
-** Update record by Json data
- */
-func update(c echo.Context) error {
-    db := gormConnect()
-    db.AutoMigrate(&Product{})
-    u := new(Item)
-    if err := c.Bind(u); err != nil {
-        return err
-    }
-    var product Product
-    db.First(&product, "code = ?", u.Code)
-    db.Model(&product).Update("Price", u.Price)
-    defer db.Close()
-    return returnJson(c, u.Code)
-}
-/*
-** Delete record by Json data
- */
-func delete(c echo.Context) error {
-    db := gormConnect()
-    db.AutoMigrate(&Product{})
-    u := new(Item)
-    if err := c.Bind(u); err != nil {
-        return err
-    }
-    var product Product
-    db.First(&product, "code = ?", u.Code)
-    db.Delete(&product)
-    defer db.Close()
-    return returnJson(c, u.Code)
-}
+
 /*
 ** main loop
  */
 func main() {
+    t := &Template{
+        templates: template.Must(template.ParseGlob("views/*.html")),
+    }
     e := echo.New()
+    e.Renderer = t
     // Routes
-    e.POST("/helloWorld", helloWorld)
-    e.POST("/insert", insert)
-    e.POST("/find", find)
-    e.POST("/update", update)
-    e.POST("/delete", delete)
+    e.GET("/", getHandler)
+    e.POST("/insert", banner.Insert)
+    e.POST("/find", banner.Find)
+    e.POST("/update", banner.Update)
+    e.POST("/delete", banner.Delete)
     // Start server
     e.Logger.Fatal(e.Start(":8080"))
 }
-

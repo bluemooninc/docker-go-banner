@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html><body>
+{{define "index"}}
+    Remote address:   {{.RemoteAddr}}
+    {{ if .PromotionCode }}
+    <blockquote>
+        <div>Promotion Code : {{.PromotionCode}}</div>
+        <div>Promotion DATE(UTC): {{.StartedAt}} to {{.ExpiredAt}}</div>
+        <img src="{{.ContentUrl}}" />
+    </blockquote>
+    {{end}}
+{{end}}
+</body></html>

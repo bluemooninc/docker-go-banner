@@ -1,3 +1,5 @@
+.idea
+.git
 go.mod
 db/data
 

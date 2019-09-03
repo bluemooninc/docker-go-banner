@@ -56,17 +56,13 @@ Check products table in the test_database when you post the request with Json pa
 It just looking your json parameter about your post request.
  
 Call api from your local terminal.
-```cassandraql
+```
 curl   -X POST   http://localhost:8080/helloWorld   -H 'Content-Type: application/json'   -d '{"code": "helloWorld", "price": 999}'
-
-{"code":"helloWorld","price":999}
 ```
 
 ## 4. Insert data by Json post
 ```cassandraql
-curl   -X POST   http://localhost:8080/insert   -H 'Content-Type: application/json'   -d '{"code": "foo","price": 555}'
-
-{"code":200,"body":"foo"}
+curl -X POST http://localhost:8080/insert -H 'Content-Type: application/json' -d '{"PromotionCode": "foo","ContentUrl": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png", "StartedAt": "2019/09/03", "ExpiredAt": "2019/09/30"}'
 ```
 
 ## 5. Find data by Json Post
