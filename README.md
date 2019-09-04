@@ -78,3 +78,9 @@ curl   -X POST   http://localhost:8080/delete   -H 'Content-Type: application/js
 
 {"code":200,"body":"foo"}
 ```
+
+## 7. Login to go container
+ 
+```cgo
+docker exec -it go /bin/sh
+```

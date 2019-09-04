@@ -27,6 +27,7 @@ RUN set -eux; \
 		GOARCH="$(go env GOARCH)" \
 		GOHOSTOS="$(go env GOHOSTOS)" \
 		GOHOSTARCH="$(go env GOHOSTARCH)" \
+		CGO_ENABLED="0" \
 	; \
 # also explicitly set GO386 and GOARM if appropriate
 # https://github.com/docker-library/golang/issues/184
