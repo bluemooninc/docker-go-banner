@@ -1,14 +1,14 @@
 /**
 Golang upper v1.11
-with echo, gorm modules with mysql database sample
+with echo, gorm modules with mysql Database sample
 by Yoshi Sakai
  */
 package main
 import (
-    "html/template"
-    "github.com/castaneai/gomodtest/banner"
     "io"
     "net/http"
+    "html/template"
+    "github.com/castaneai/gomodtest/banner"
     "github.com/labstack/echo"
     "github.com/jinzhu/gorm"
     _ "github.com/jinzhu/gorm/dialects/mysql"
@@ -22,8 +22,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
     return t.templates.ExecuteTemplate(w, name, data)
 }
 
-var DATABASE *gorm.DB
-const dateLayout = "2006-01-02 15:04"
+var Database *gorm.DB
 
 /*
 ** Config for MySQL setting
@@ -47,7 +46,7 @@ func GormConnect() *gorm.DB {
 /*
 ** Common return of Json
  */
-func returnJson(c echo.Context, b *banner.Banner) error {
+func returnJson(c echo.Context, b *banner.UserParam) error {
     if b != nil {
         return c.JSON(
             http.StatusOK,
@@ -61,77 +60,55 @@ func returnJson(c echo.Context, b *banner.Banner) error {
                 Id: http.StatusOK,
                 PromotionCode: b.PromotionCode,
                 ContentUrl: b.ContentUrl,
-                StartedAt: b.StartedAt.Format(dateLayout),
-                ExpiredAt: b.ExpiredAt.Format(dateLayout),
-            }, )
-    } else {
-        return c.JSON(
-            http.StatusOK,
-            struct {
-                code int    `json:"Id"`
-                body string `json:"body"`
-            }{
-                code: http.StatusOK,
-                body: "ok",
+                StartedAt: b.StartedAt,
+                ExpiredAt: b.ExpiredAt,
             }, )
     }
     return nil
 }
 
-func getHandler(c echo.Context) error {
+func indexController(c echo.Context) error {
     // get banner when exist
-    b := banner.GetActiveBanner(DATABASE, c)
-    var data = struct {
-        PromotionCode string
-        ContentUrl    string
-        StartedAt     string
-        ExpiredAt     string
-        RemoteAddr    string
-    }{
-        PromotionCode: b.PromotionCode,
-        ContentUrl:    b.ContentUrl,
-        StartedAt:     b.StartedAt.Format(dateLayout),
-        ExpiredAt:     b.ExpiredAt.Format(dateLayout),
-        RemoteAddr:    c.RealIP(),
-    }
+    bannerData := banner.GetActiveBanner(Database, c)
     // Template rendering
-    return c.Render(http.StatusOK, "index", data)
+    return c.Render(http.StatusOK, "index", bannerData)
 }
 
-func insert(c echo.Context) error{
+func insertController(c echo.Context) error{
     u := new(banner.UserParam)
     if err := c.Bind(u); err != nil {
         return err
     }
-    banner.Insert(DATABASE, u)
-    return returnJson(c, nil)
+    bannerData := banner.Insert(Database, u)
+    return c.JSON(http.StatusOK, bannerData)
 }
-func find(c echo.Context) error{
+
+func findController(c echo.Context) error{
     u := new(banner.UserParam)
     if err := c.Bind(u); err != nil {
         return err
     }
-    b := banner.Find(DATABASE, u)
-    return returnJson(c, b)
-}
-func update(c echo.Context) error{
-    u := new(banner.UserParam)
-    if err := c.Bind(u); err != nil {
-        return err
-    }
-    b := banner.Update(DATABASE, u)
+    b := banner.Find(Database, u)
     return returnJson(c, b)
 }
 
-func delete(c echo.Context) error{
+func updateController(c echo.Context) error{
     u := new(banner.UserParam)
     if err := c.Bind(u); err != nil {
         return err
     }
-    b := banner.Delete(DATABASE, u)
+    b := banner.Update(Database, u)
     return returnJson(c, b)
 }
 
+func deleteController(c echo.Context) error{
+    u := new(banner.UserParam)
+    if err := c.Bind(u); err != nil {
+        return err
+    }
+    banner.Delete(Database, u)
+    return nil
+}
 /*
 ** main loop
  */
@@ -141,16 +118,16 @@ func main() {
     }
     e := echo.New()
     e.Renderer = t
-    DATABASE = GormConnect()
-    DATABASE.AutoMigrate(&banner.Banner{})
+    Database = GormConnect()
+    Database.AutoMigrate(&banner.Banner{})
 
     // Routes
-    e.GET("/", getHandler)
-    e.POST("/insert", insert)
-    e.POST("/find", find)
-    e.POST("/update", update)
-    e.POST("/delete", delete)
+    e.GET("/", indexController)
+    e.POST("/insert", insertController)
+    e.POST("/find", findController)
+    e.POST("/update", updateController)
+    e.POST("/delete", deleteController)
     // Start server
     e.Logger.Fatal(e.Start(":8080"))
-    defer DATABASE.Close()
+    defer Database.Close()
 }

@@ -1,6 +1,6 @@
-# docker-go-starter
+# docker-go-banner
 
-You can quick start for GO language development with docker.
+This program is sample API for CRUD and index show banner tag sample with test program.
 
 It contain about Go v1.13 with Echo web flame-work and Gorm OR-Mapper with MySQL database.
 
@@ -52,35 +52,54 @@ You will see the test_database on your browser.
 
 Check products table in the test_database when you post the request with Json parameter below.
 
-## 3. hello world by Json post
-It just looking your json parameter about your post request.
- 
-Call api from your local terminal.
+## 3. Test and browse
+You can check the test with mock data below command.
+You can see the result by web browser http://localhost:8080/
 ```
-curl   -X POST   http://localhost:8080/helloWorld   -H 'Content-Type: application/json'   -d '{"code": "helloWorld", "price": 999}'
+docker exec -it go /bin/sh
+go test
 ```
 
 ## 4. Insert data by Json post
 ```cassandraql
-curl -X POST http://localhost:8080/insert -H 'Content-Type: application/json' -d '{"PromotionCode": "foo","ContentUrl": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png", "StartedAt": "2019/09/03", "ExpiredAt": "2019/09/30"}'
+curl   -X POST   http://localhost:8080/insert   -H 'Content-Type: application/json'   -d '{"PromotionCode": "foo","ContentUrl": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png", "StartedAt": "2019-09-03 09:00:00.000", "ExpiredAt": "2019-09-10 23:59:59.000"}'
+
 ```
 
-## 5. Find data by Json Post
+## 5. Update data by Json post
 ```cassandraql
-curl   -X POST   http://localhost:8080/find   -H 'Content-Type: application/json'   -d '{"code": "foo"}'
+curl   -X POST   http://localhost:8080/update  -H 'Content-Type: application/json'   -d '{"PromotionCode": "foo","ContentUrl": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png", "StartedAt": "2019-09-04 09:00:00.000", "ExpiredAt": "2019-09-10 23:59:59.000"}'
 
-{"code":200,"body":"555"}
 ```
 
-## 6. Delete data by Json Post
+## 6. Find data by Json Post
 ```cassandraql
-curl   -X POST   http://localhost:8080/delete   -H 'Content-Type: application/json'   -d '{"code": "foo"}'
+curl   -X POST   http://localhost:8080/find   -H 'Content-Type: application/json'   -d '{"PromotionCode": "foo"}'
 
-{"code":200,"body":"foo"}
 ```
 
-## 7. Login to go container
- 
-```cgo
-docker exec -it go /bin/sh
+## 7. Delete data by Json Post
+```cassandraql
+curl   -X POST   http://localhost:8080/delete   -H 'Content-Type: application/json'   -d '{"PromotionCode": "foo"}'
+
 ```
+
+## 8. Specification
+
+- Banner Display Period Conditions
+
+  Each banner is associated with a promotion.
+  Therefore, each banner will only run for a specific period of time.
+  Ensure the display period can be set individually for each banner.
+
+- Banner Display Rules
+
+  If the banner is within the display period, display the banner.
+  The banner display rules should be timezone aware.(UTC)
+  Only one banner can be displayed at a time.
+
+- Internal Release & QA Considerations
+
+  We’d like to display the banner if the user has an internal IP address (10.0.0.1, 10.0.0.2, 127.0.0.1 as test), even if the current time is before the display period of the banner.
+  After a banner expires, it should not be displayed again.
+  During QA, there may be occasions where two banners are considered active. In this case, the banner with the earlier expiration should be displayed.

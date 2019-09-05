@@ -2,4 +2,5 @@
 .git
 go.mod
 db/data
+tmp
 

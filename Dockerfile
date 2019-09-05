@@ -12,6 +12,7 @@ ENV GOLANG_VERSION 1.13beta1
 
 RUN set -eux; \
 	apk add --no-cache --virtual .build-deps \
+	    curl \
 		bash \
 		gcc \
 		musl-dev \
