@@ -9,6 +9,7 @@ import (
 	"strings"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/castaneai/gomodtest/configs"
 )
 
 /*
@@ -21,10 +22,6 @@ type Banner struct {
 	StartedAt time.Time
 	ExpiredAt time.Time
 }
-
-var (
-	userJSON = `{"PromotionCode":"unitTest","ContentUrl":"https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png"}`
-)
 
 func remoteHello(domain string) string {
 	// /greetingにクエリパラメータgreet=Helloを渡してGet問い合わせする
@@ -47,7 +44,7 @@ After a banner expires, it should not be displayed again.
  */
 func TestExpiredBanner(t *testing.T) {
 	// Setup
-	db := GormConnect()
+	db := configs.GormConnect()
 	now := time.Now()
 	st := now.Add(-time.Hour)
 	ex := now.Add(-30 * time.Minute)
@@ -58,23 +55,23 @@ func TestExpiredBanner(t *testing.T) {
 		PromotionCode: "ExpiredBanner",
 		ContentUrl: "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png",
 		StartedAt: st,
-		ExpiredAt: ex,
-	})
-	// curl and get http body
-	res := remoteHello("http://localhost:8080")
-	// Find expect strings for promotion code
-	strPos := strings.Index(res, "ExpiredBanner")
-	if strPos > 0 {
-		t.Errorf("TestExpiredBanner ERROR.")
-	}
+ExpiredAt: ex,
+})
+// curl and get http body
+res := remoteHello("http://localhost:8080")
+// Find expect strings for promotion code
+strPos := strings.Index(res, "ExpiredBanner")
+if strPos > 0 {
+t.Errorf("TestExpiredBanner ERROR.")
+}
 }
 
 /**
 A banner’s display period is the duration the banner is active on the screen.
- */
+*/
 func TestSingleRecord(t *testing.T) {
 	// Setup
-	db := GormConnect()
+	db := configs.GormConnect()
 	now := time.Now()
 	st := now.Add(-time.Hour)
 	ex := now.Add(time.Hour)
@@ -95,12 +92,13 @@ func TestSingleRecord(t *testing.T) {
 		t.Errorf("No exist JustOnTimePromotion.")
 	}
 }
+
 /**
 there may be occasions where two banners are considered active. In this case, the banner with the earlier expiration should be displayed.
 */
 func TestDoubleRecord(t *testing.T) {
 	// Setup
-	db := GormConnect()
+	db := configs.GormConnect()
 	now := time.Now()
 	st := now.Add(-time.Hour)
 	ex := now.Add(30 * time.Minute)
@@ -134,10 +132,10 @@ func TestDoubleRecord(t *testing.T) {
 }
 /**
 display the banner if the user has an internal IP address (10.0.0.1, 10.0.0.2), even if the current time is before the display period of the banner.
- */
+*/
 func TestInternalIpAddress(t *testing.T) {
 	// Setup
-	db := GormConnect()
+	db := configs.GormConnect()
 	now := time.Now()
 	st := now.Add(-time.Hour)
 	ex := now.Add(3 * time.Hour)

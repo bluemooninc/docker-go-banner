@@ -19,7 +19,7 @@ func LoadConfig() *Config{
 		os.Exit(1)
 	}
 	var cnf Config
-	json.Unmarshal(bytes, cnf)
+	json.Unmarshal(bytes, &cnf)
 	return &cnf
 }
 

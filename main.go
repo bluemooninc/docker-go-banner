@@ -26,8 +26,8 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 }
 
 func indexController(c echo.Context) error {
-    conf := new(configs.Config)
-    configs.LoadConfig()
+    //conf := new(configs.Config)
+    conf := configs.LoadConfig()
     // get banner when exist
     bannerData := banner.GetActiveBanner(Database, c, conf.InternalIps)
     // Template rendering
