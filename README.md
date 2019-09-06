@@ -1,14 +1,14 @@
 # docker-go-banner
 
-This program is sample API for CRUD and index show banner tag sample with test program.
+This program is simple Web/API sample for CRUD and index page with test program.
 
 It contain about Go v1.13 with Echo web flame-work and Gorm OR-Mapper with MySQL database.
 
 You can edit go file which is automatically hot reload by fresh module.
 
-Sample main.go is simple api just response json data. 
+main.go is main router and controller. it has sab module as config and banner. 
 
-if you want to more variety for Dockerfile visit below.
+This dockerfile is customised from docker community version of golang below.
 
 https://github.com/docker-library/golang
 
@@ -62,26 +62,38 @@ go test
 
 ## 4. Insert data by Json post
 ```cassandraql
-curl   -X POST   http://localhost:8080/insert   -H 'Content-Type: application/json'   -d '{"PromotionCode": "foo","ContentUrl": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png", "StartedAt": "2019-09-03 09:00:00.000", "ExpiredAt": "2019-09-10 23:59:59.000"}'
-
+curl   -X POST \
+http://localhost:8080/insert -H 'Content-Type: application/json' \
+  -d '{"PromotionCode": "foo", 
+  "ContentUrl": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png", 
+  "StartedAt": "2019-09-03 09:00:00.000", 
+  "ExpiredAt": "2019-09-10 23:59:59.000" 
+  }'
 ```
 
 ## 5. Update data by Json post
 ```cassandraql
-curl   -X POST   http://localhost:8080/update  -H 'Content-Type: application/json'   -d '{"PromotionCode": "foo","ContentUrl": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png", "StartedAt": "2019-09-04 09:00:00.000", "ExpiredAt": "2019-09-10 23:59:59.000"}'
+curl   -X POST \
+http://localhost:8080/update -H 'Content-Type: application/json' \
+  -d '{"PromotionCode": "foo", 
+  "ContentUrl": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png", 
+  "StartedAt": "2019-09-03 09:00:00.000", 
+  "ExpiredAt": "2019-09-10 23:59:59.000" 
+  }'
 
 ```
 
 ## 6. Find data by Json Post
 ```cassandraql
-curl   -X POST   http://localhost:8080/find   -H 'Content-Type: application/json'   -d '{"PromotionCode": "foo"}'
+curl   -X POST   http://localhost:8080/find   -H 'Content-Type: application/json'  \  
+-d '{"PromotionCode": "foo"}'
 
 ```
 
 ## 7. Delete data by Json Post
 ```cassandraql
-curl   -X POST   http://localhost:8080/delete   -H 'Content-Type: application/json'   -d '{"PromotionCode": "foo"}'
-
+curl   -X POST   http://localhost:8080/delete   -H 'Content-Type: application/json'  \  
+-d '{"PromotionCode": "foo"}'
 ```
 
 ## 8. Specification
