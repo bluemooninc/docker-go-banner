@@ -2,15 +2,15 @@ package banner
 
 import (
 	"fmt"
+	"net/http"
+	"time"
 	"github.com/labstack/echo"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/Songmu/go-httpdate"
-	"time"
 )
 
 const dateLayout = "2006-01-02 15:04"
-var InternalIpAddress = []string {"10.0.0.1", "10.0.0.2", "127.0.0.1", "192.168.0.1"}
 
 /*
 ** Struct Database table
@@ -110,7 +110,7 @@ func in_array(val string, array []string) (exists bool, index int) {
 /*
  ** Find record by Json data
  */
-func GetActiveBanner(Database *gorm.DB, c echo.Context) *UserParam {
+func GetActiveBanner(Database *gorm.DB, c echo.Context, ipAddresses []string) *UserParam {
 	var Banner Banner
 	atNow := time.Now()
 
@@ -119,7 +119,7 @@ func GetActiveBanner(Database *gorm.DB, c echo.Context) *UserParam {
 	Database.LogMode(true)
 	// After a banner expires, it should not be displayed again.
 	// There may be occasions where two banners are considered active. In this case, the banner with the earlier expiration should be displayed.
-	ret,_ := in_array(c.RealIP(), InternalIpAddress)
+	ret,_ := in_array(c.RealIP(), ipAddresses)
 	fmt.Println(c.RealIP())
 	fmt.Println(ret)
 	if ret == true  {
@@ -137,4 +137,28 @@ func GetActiveBanner(Database *gorm.DB, c echo.Context) *UserParam {
 		RemoteAddr:    c.RealIP(),
 	}
 	return &u
+}
+
+/*
+** Common return of Json
+ */
+func ReturnJson(c echo.Context, b *UserParam) error {
+	if b != nil {
+		return c.JSON(
+			http.StatusOK,
+			struct {
+				Id int    `json:"Id"`
+				PromotionCode string `json:"PromotionCode"`
+				ContentUrl string `json:"ContentUrl"`
+				StartedAt string `json:"StartedAt"`
+				ExpiredAt string `json:"ExpiredAt"`
+			}{
+				Id: http.StatusOK,
+				PromotionCode: b.PromotionCode,
+				ContentUrl: b.ContentUrl,
+				StartedAt: b.StartedAt,
+				ExpiredAt: b.ExpiredAt,
+			}, )
+	}
+	return nil
 }
