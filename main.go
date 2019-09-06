@@ -8,13 +8,12 @@ import (
     "io"
     "html/template"
     "net/http"
-    "github.com/castaneai/gomodtest/configs"
-    "github.com/castaneai/gomodtest/banner"
+    "github.com/bluemooninc/docker-go-banner/configs"
+    "github.com/bluemooninc/docker-go-banner/banner"
     "github.com/labstack/echo"
     "github.com/jinzhu/gorm"
     _ "github.com/jinzhu/gorm/dialects/mysql"
     )
-
 var Database *gorm.DB
 
 type Template struct {
@@ -26,7 +25,6 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 }
 
 func indexController(c echo.Context) error {
-    //conf := new(configs.Config)
     conf := configs.LoadConfig()
     // get banner when exist
     bannerData := banner.GetActiveBanner(Database, c, conf.InternalIps)
