@@ -9,7 +9,7 @@ import (
 	"strings"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/castaneai/gomodtest/configs"
+	"github.com/bluemooninc/docker-go-banner/configs"
 )
 
 /*

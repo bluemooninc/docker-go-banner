@@ -59,13 +59,19 @@ RUN set -eux; \
 	go version
 
 ENV GOPATH /go
-ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
+ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH:/usr/bin
 
 RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
 WORKDIR $GOPATH/src
 
 # copy sources to work dir
 COPY . .
+
+# copy for abailability check for DB
+# RUN apk add mysql-client
+# COPY wait.sh /wait.sh
+# RUN chmod 755 /wait.sh
+RUN sleep 30
 
 # Use Go Modules
 ENV GO111MODULE="on"

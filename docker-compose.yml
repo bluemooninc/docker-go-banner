@@ -1,17 +1,5 @@
 version: '3'
 services:
-  app:
-    container_name: go
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - ./:/go/src
-    ports:
-      - "8080:8080"
-    depends_on:
-      - "db"
-
   # MySQL
   db:
     image: mysql:5.7
@@ -39,3 +27,18 @@ services:
       - PMA_PASSWORD=root
     ports:
       - 8085:80
+    depends_on:
+      - "db"
+  # Golang
+  app:
+    container_name: go
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # command: sh -c /wait.sh
+    volumes:
+      - ./:/go/src
+    ports:
+      - "8080:8080"
+    depends_on:
+      - "db"
